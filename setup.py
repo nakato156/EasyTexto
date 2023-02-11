@@ -4,7 +4,7 @@ with open('README.md', encoding='utf-8') as f:
     readme = f.read()
 
 setup(
-    name='EasyTexto',
+    name='TextoVEasy',
     version='0.1',
     license='MIT',
     description='Paquete para manejar archivos de texto de forma sencilla',

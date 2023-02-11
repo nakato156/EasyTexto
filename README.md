@@ -5,7 +5,7 @@ EasyTexto es un paquete que permite el manejo de archivos de texto de forma senc
 
 #### Accediendo a  líneas
 ```python
-from EasyTexto import EasyTexto
+from TextoVEasy import EasyTexto
 
 texto = EasyTexto('ruta_al_archivo.txt', encode="utf-8") #el encode por defecto es utf-8
 print(texto[1]) #los índices comienzan en 1, es lo mismo que el número de línea
