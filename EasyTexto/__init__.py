@@ -1,0 +1,1 @@
+from .easyTexto import EasyTexto
