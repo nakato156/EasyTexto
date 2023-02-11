@@ -113,6 +113,10 @@ class EasyTexto:
         os_remove(self.filename)
         os_rename(f"{self.filename}.tmp", self.filename)
 
+    def leer(self) -> str:
+        with FileIO(self.filename) as f:
+            return f.read().decode(self.encode)
+
     def __repr__(self) -> str:
         self.update_preview()
         try:
