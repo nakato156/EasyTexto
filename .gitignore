@@ -1,4 +1,5 @@
 env/
+dist/
 EasyTexto.egg-info/
 .vscode
 .pytest_cache
