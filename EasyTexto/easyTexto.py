@@ -1,27 +1,38 @@
 from io import FileIO
 from os.path import getsize as os_getsize
 from os import remove as os_remove, rename as os_rename
-from typing import Type, Union, Any
+from typing import Type, Union, Literal, Any, Callable
 from .linea import Linea
 
 class EasyTexto:
-    def __init__(self, filename:str, encode:str='utf-8', tipo:str = 'normal'):
-        self.encode = encode
+    def __init__(self, filename:str, encoding:str='utf-8', tipo:Literal['simple', 'dialogo'] = 'simple', rule: Callable = None):
+        self.encoding = encoding
         self.filename = filename
-        self.__file = FileIO(filename)
+        # self.__file = FileIO(filename)
+        self.tipo = tipo
         self.__preview = ''
         self.update_preview()
         self.lineas_totales = self._contar_lineas()
+        if tipo == 'dialogo':
+            if rule != None: self.validator = rule
+            else: self.validator = lambda x: x.split(':', maxsplit=1) if ':' in x else False
 
     def _contar_lineas(self) -> int:
         with open(self.filename) as f:
             return sum( 1 for _ in f)
+    
+    def _decode_line(self, line, line_number) -> Linea:
+        try: 
+            line = line.decode(self.encoding)
+        except: 
+            line = str(line)
+
+        return Linea(line, line_number)
 
     def update_preview(self):
         with FileIO(self.filename) as f:
             size_file = os_getsize(self.filename)
             total_bytes = 800
-            preview = ''
             if size_file > total_bytes:
                 preview = b''.join(f.readline() for _ in range(5)) + b'.' * 10 + b'\n'
                 lineas = []
@@ -34,20 +45,37 @@ class EasyTexto:
             else: preview = f.read()
         self.__preview = preview
     
-    def _decode_line(self, line, line_number):
-        try: 
-            line = line.decode(self.encode)
-        except: 
-            line = str(line)
+    def get_msg_by(self, name:str) -> list[str]:
+        res = []
+        with open(self.filename, encoding=self.encoding) as f:
+            for linea in f:
+                r = self.validator(linea)
+                if not r:
+                    raise SyntaxError(f'El archivo no concide con el formato selecionado ({self.tipo})')
+                if r[0].strip() == name: res.append(r[1])
 
-        return Linea(line, line_number)
-    
-    def __getitem__(self, num_linea:Type[int]):
+        return res
+
+    def get_msgs(self) -> dict:
+        res:dict[list] = {}
+        with open(self.filename) as f:
+            for linea in f:
+                r = self.validator(linea)
+                if not r:
+                    raise SyntaxError(f'El archivo no concide con el formato selecionado ({self.tipo})')
+                if r[0] in res:
+                    res[r[0]].append(r[1])
+                else:
+                    res[r[0]] = [r[1]]
+        return res
+
+    def __getitem__(self, num_linea:Type[int]) -> Union[Linea, list]:
         if not isinstance(num_linea, (int, slice)):
             raise TypeError('El índice debe ser un valor entero o slice')
         
         is_slice = False
         if type(num_linea) == int:
+            num_linea = num_linea if num_linea > 0 else self.lineas_totales + num_linea + 1
             start, stop, step = num_linea, num_linea, 1
         else:
             is_slice = True
@@ -69,7 +97,7 @@ class EasyTexto:
     def __setitem__(self, pos:Type[int], val:Union[Linea, str, Any]):
         if not isinstance(pos, (int, slice)): 
             raise TypeError('El índice debe ser un valor entero o slice')
-        if type(val) != str:
+        if not isinstance(val, (str, Linea)):
             raise TypeError('El valor debe ser de tipo str, Linea o una instancia de esta')
         texto = val if type(val) == str else val.texto
 
@@ -86,13 +114,13 @@ class EasyTexto:
             with FileIO(self.filename, 'r+') as f:
                 for _ in range(pos_ - 1):
                     bytes_leidos += len(f.readline())
-                f.write(texto.encode(self.encode) + b'\n')
+                f.write(texto.encode(self.encoding) + b'\n')
                 f.truncate()
                 if pos_ < self.lineas_totales:
-                    f.write(b''.join(str(linea).encode(self.encode) for linea in resto_texto))
+                    f.write(b''.join(str(linea).encode(self.encoding) for linea in resto_texto))
         
     def append(self, texto:Union[str, bytes, list, tuple]):
-        convert = lambda txt: txt.encode(self.encode) if type(txt) == str else txt
+        convert = lambda txt: txt.encode(self.encoding) if type(txt) == str else txt
         with FileIO(self.filename, 'a+b') as f:
             if isinstance(texto, (list, tuple)): texto = b'\n'.join(convert(text) for text in texto)
             else: texto = convert(texto)
@@ -115,11 +143,11 @@ class EasyTexto:
 
     def leer(self) -> str:
         with FileIO(self.filename) as f:
-            return f.read().decode(self.encode)
+            return f.read().decode(self.encoding)
 
     def __repr__(self) -> str:
         self.update_preview()
         try:
-            return self.__preview.decode(self.encode)
+            return self.__preview.decode(self.encoding)
         except:
             return str(self.__preview)

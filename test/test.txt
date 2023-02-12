@@ -1,0 +1,13 @@
+Uno:Primera línea
+Uno: Otra linea
+Uno: Pregunta
+Dos: Cual es mejor, mayonesa de pollería o la normal?
+Dos: Si-si-no
+Uno:En cualquier caso depende de la preparación
+Uno:ok
+Dos: Si
+Dos:Pero la mayoría de pollerías tienen un tipo de mayonesa estándar
+Dos: Te gusta o no
+Uno: Mmm... si
+Dos: Más que la mayonesa que venden?
+Uno:   Ya dije que depende, pero diré que si ya que es lo que aveces más consumo

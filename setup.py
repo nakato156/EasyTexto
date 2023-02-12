@@ -5,7 +5,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='EasyTexto',
-    version='0.2',
+    version='0.3',
     license='MIT',
     description='Paquete para manejar archivos de texto de forma sencilla',
     long_description_content_type="text/markdown",
