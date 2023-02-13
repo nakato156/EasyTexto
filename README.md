@@ -8,6 +8,12 @@
 
 EasyTexto es un paquete que permite el manejo de archivos de texto de forma sencilla. Esta herramienta provee funciones para leer archivos así como para acceder, modificar y eliminar líneas específicas.
 
+## instalacion
+
+```
+pip install EasyTexto
+```
+
 ## Uso
 
 ### Accediendo a  líneas
