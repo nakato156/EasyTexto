@@ -1,3 +1,4 @@
+from io import StringIO
 from pathlib import Path
 import pytest
 import sys
@@ -26,6 +27,14 @@ def test_replace_line():
     cambio = texto[1]
     texto[1] = vieja_linea.texto.strip()
     assert cambio == nueva_linea
+
+#test diff
+def test_diff():
+    content = "Este es el primer archivo\ny esta una linea"
+    texto2 = StringIO(content)
+
+    diffs = texto.diff(texto2)
+    assert diffs == [(1,'Uno:Primera línea\n', 'Este es el primer archivo\n'), (2,'Uno: Otra linea\n', 'y esta una linea')]
 
 texto = EasyTexto(path_txt / filename, tipo="dialogo")
 

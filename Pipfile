@@ -20,6 +20,7 @@ tomlkit = "==0.11.6"
 virtualenv-clone = "==0.5.7"
 webencodings = "==0.5.1"
 zipp = "==3.13.0"
+colorama = "*"
 
 [dev-packages]
 pytest = "*"

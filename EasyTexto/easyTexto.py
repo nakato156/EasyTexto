@@ -1,8 +1,11 @@
-from io import FileIO
+from io import FileIO, StringIO
+from colorama import Fore, init
 from os.path import getsize as os_getsize
 from os import remove as os_remove, rename as os_rename
 from typing import Type, Union, Literal, Any, Callable
 from .linea import Linea
+
+init()
 
 class EasyTexto:
     def __init__(self, filename:str, encoding:str='utf-8', tipo:Literal['simple', 'dialogo'] = 'simple', rule: Callable = None):
@@ -144,6 +147,24 @@ class EasyTexto:
     def leer(self) -> str:
         with FileIO(self.filename) as f:
             return f.read().decode(self.encoding)
+
+    def diff(self, other, encodig:str=None, show:bool = True) -> list[tuple]:
+        if not isinstance(other, (str, EasyTexto, StringIO, FileIO)):
+            raise TypeError("El argumento debe ser un string, EasyTexto object, StringIO object o FileIO object.")
+        
+        diferencias = []
+        if isinstance(other, (str, EasyTexto)):
+            filename = other.filename if type(other) == EasyTexto else other
+            other_stream = open(filename, encoding=encodig)
+        else: other_stream = other
+
+        with open(self.filename, encoding=self.encoding) as this_file, other_stream as other_file:
+            for i, (f1, f2) in enumerate(zip(this_file, other_file)):
+                if f1 != f2:
+                    diferencias.append((i + 1, f1, f2))
+        
+        if show: print(''.join(f'{Fore.GREEN}{lineas[0]}| {lineas[1]}{Fore.RED}{lineas[0]}| {lineas[2]}{Fore.RESET}' for lineas in diferencias))
+        return diferencias
 
     def __repr__(self) -> str:
         self.update_preview()
